@@ -7,7 +7,7 @@ This repository provides MATLAB code to load and analyze the data collected in t
 If you wish to use the provided MATLAB scripts to read and/or analyze the data, please read on. Otherwise, skip to step 4 to download the data.
 1. Clone the repo, including submodules
 ```
-git clone --recurse-submodules https://github.com/raora7777/curve-on-surface-vr-data`
+git clone --recurse-submodules https://github.com/raora7777/curve-on-surface-vr-data
 ```
 2. Then, build the `geodesic_matlab` submodule according to instructions: https://github.com/rarora7777/geodesic_matlab.
 3. Download the dependency `gptoolbox` from https://github.com/alecjacobson/gptoolbox/ and add it to the MATLAB path according to the instructions in that repo.
