@@ -11,7 +11,7 @@ git clone --recurse-submodules https://github.com/raora7777/curve-on-surface-vr-
 ```
 2. Then, build the `geodesic_matlab` submodule according to instructions: https://github.com/rarora7777/geodesic_matlab.
 3. Download the dependency `gptoolbox` from https://github.com/alecjacobson/gptoolbox/ and add it to the MATLAB path according to the instructions in that repo.
-4. Download the data [here](https://drive.google.com/file/d/16HLfToeoSTzmcgEjBTdV5HArgyyqNPwl/view?usp=sharing) to the root folder of this repo (`somewhere/curve-on-surface-vr-data/`) and extract using the command (works on Linux and probably MacOS). On Windows, use 7-Zip: https://www.7-zip.org/.
+4. Download the data [here](https://github.com/rarora7777/curve-on-surface-vr-data/releases/tag/v1.0) to the root folder of this repo (`somewhere/curve-on-surface-vr-data/`) and extract using the command (works on Linux and probably MacOS). On Windows, use 7-Zip: https://www.7-zip.org/.
 ```
 tar -xf studydata.tar.xz
 ```
