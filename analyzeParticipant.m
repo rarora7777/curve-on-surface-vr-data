@@ -1,10 +1,22 @@
-function [result, kpdist, rawData] = analyzeParticipant(V, F, data, dataGT, seq)
+function result = analyzeParticipant(V, F, data, dataGT, sequence)
     global geodesic_library;
     geodesic_library = 'geodesic_release';
 
+    % Analyze the data for a participant.
+    % V, F, dataGT : see init.m
+    % data, sequence : load from files using loadParticipantData
+    % result : struct with a field each for the measures reported in the
+    % paper. Each field is an 72*2 array. For a field, say "f", f{j, i} is
+    % that measure when using the ith projection technique for the jth
+    % stroke in the study sequence, that is, the sequence as seen by the
+    % participant. The actual shapeID and strokeID are added as fields of
+    % results to allow for parsing the data in terms of those IDs.
+    % See the end of the function for the names and short descriptions of
+    % all the fields.
     
     [numMethod, numShape] = size(data);
     numStroke = numel(data{1, 1});
+    
     
     assert(numel(V) >= numShape);
     assert(numel(F) >= numShape);
@@ -12,24 +24,19 @@ function [result, kpdist, rawData] = analyzeParticipant(V, F, data, dataGT, seq)
     kmean = zeros(numShape*(numStroke + 2), numMethod);
     gkmean = kmean;
     gfair = kmean;
-    prepTime = kmean;
     execTime = kmean;
     numPieces = kmean;
-    distMean = kmean;
-    distMeanHauss = kmean;
+    distMeanEP = kmean;
+    distMeanSym = kmean;
     effortHeadTranslate = kmean;
     effortHeadRotate = kmean;
     effortPenTranslate = kmean;
     effortPenRotate = kmean;
-%     distMeanTrace = kmean;
-%     distMeanFree = kmean;
-    rawData = cell(numShape*(numStroke + 2), numMethod);
+
     numKP = kmean;
-    strokeId = zeros(numShape*(numStroke + 2));
-    shapeId = zeros(numShape*(numStroke + 2));
+    curveID = zeros(numShape*(numStroke + 2), 1);
+    shapeID = zeros(numShape*(numStroke + 2), 1);
     
-    
-    kpdist = cell(numShape*numStroke, numMethod);
     
     for s=1:numShape
         tic;
@@ -49,30 +56,19 @@ function [result, kpdist, rawData] = analyzeParticipant(V, F, data, dataGT, seq)
             if str <= numStroke
                 strG = str;
             elseif str == numStroke+1
-                strG = seq.StrokeSequence(1+numStroke/2);
+                strG = sequence.StrokeSequence(1+numStroke/2);
             else
-                strG = seq.StrokeSequence(2+numStroke);
+                strG = sequence.StrokeSequence(2+numStroke);
             end
             
-            shapeId(idx) = s;
-            strokeId(idx) = strG;
+            shapeID(idx) = s;
+            curveID(idx) = strG;
                 
             ptsG = getPoints(V{s}, F{s}, dataGT(s).SS(strG));
-%             ptsGtrace = ptsG(1:dataGT(s).SS(str).KPI(2), :);
-%             ptsGfree = ptsG(1+dataGT(s).SS(str).KPI(2):end, :);
-            ptsG = util.interparc(0:.01:1, ptsG, 'spline');
+            ptsG = interparc(0:.01:1, ptsG, 'spline');
             edge = diff(ptsG, [], 1) * scale;
             eLen = vecnorm(edge, 2, 2);
             L = sum(eLen);
-%             ptsGtrace = util.interparc(0:.01:1, ptsGtrace, 'spline');
-%             ptsGfree = util.interparc(0:.01:1, ptsGfree, 'spline');
-%             
-%             if ~isfield(data{1, s}{str}, 'F') || ~isfield(data{2, s}{str}, 'F')
-%                 fprintf('Skipping %d %d due to missing data (%d %d)\n', ...
-%                     s, str, ...
-%                     isfield(data{1, s}{str}, 'F'), isfield(data{2, s}{str}, 'F'));
-%                 continue;
-%             end
             
             for m=1:numMethod
                 fprintf('%d,%d  ', str, m);
@@ -88,45 +84,31 @@ function [result, kpdist, rawData] = analyzeParticipant(V, F, data, dataGT, seq)
                     continue;
                 end
                 
-                % preparation and execution time
-                prepTime(idx, m) = userStrokeData(1).F(1).DF.T;
-                execTime(idx, m) = userStrokeData(end).F(end).DF.T - prepTime(idx, m);
+                % execution time
+                startTime = userStrokeData(1).F(1).DF.T;
+                execTime(idx, m) = userStrokeData(end).F(end).DF.T - startTime;
                 
                 % number of pieces
                 numPieces(idx, m) = numel(userStrokeData);
                 
                 nkp = numel(dataGT(s).SS(strG).KPI);
                 numKP(idx, m) = nkp;
-                % keypoint distances
-                kpdist{idx, m} = ...
-                    keypointDistances(V{s}, F{s}, dataGT(s).SS(strG), userStrokeData);
                 
                 % extrinsic and intrinsic (geodesic) curvature
                 [gk, k, ~] = geodesicCurvature(V{s}, F{s}, userStrokeData, algorithm);
-%                 P = [vertcat(cell2mat(path).x), vertcat(cell2mat(path).y) vertcat(cell2mat(path).z)];
-%                 edge = diff(P, [], 1) * scale;
-%                 eLen = vecnorm(edge, 2, 2);
-%                 L = sum(eLen);
                 kmean(idx, m) = sum(k)/L;
                 gkmean(idx, m) = sum(abs(gk))/L;
                 gfair(idx, m) = sum(abs(diff(gk)))/L;
                 
                 pts = getPoints(V{s}, F{s}, userStrokeData);
-                pts = util.interparc(0:.01:1, pts, 'spline');
+                pts = interparc(0:.01:1, pts, 'spline');
                 
-                distMean(idx, m) = scale * sum(vecnorm(pts - ptsG, 2, 2)) / size(pts, 1);
+                distMeanEP(idx, m) = scale * sum(vecnorm(pts - ptsG, 2, 2)) / size(pts, 1);
                 
                 distA = pdist2(pts, ptsG, 'euclidean', 'Smallest', 1);
                 distB = pdist2(ptsG, pts, 'euclidean', 'Smallest', 1);
                 
-                distMeanHauss(idx, m) = scale * (mean(distA) + mean(distB))/2;
-                
-%                 distMeanTrace(idx, m) = scale * ...
-%                     mean(pdist2(pts, ptsGtrace, 'euclidean', 'Smallest', 1));
-%                 distMeanFree(idx, m) = scale * ...
-%                     mean(pdist2(pts, ptsGfree, 'euclidean', 'Smallest', 1));
-                
-                rawData{idx, m} = struct('k', k, 'gk', gk);
+                distMeanSym(idx, m) = scale * (mean(distA) + mean(distB))/2;
                 
                 [ht, hr, pt, pr] = computeEffortMeasures(userStrokeData);
                 effortHeadTranslate(idx, m) = ht/L;
@@ -142,19 +124,18 @@ function [result, kpdist, rawData] = analyzeParticipant(V, F, data, dataGT, seq)
     end
     
     result = struct(...
-        'kmean', kmean,...
-        'gkmean', gkmean, ...
-        'gfair', gfair, ...
-        'numKP', numKP, ...
-        'prepTime', prepTime, ...
-        'execTime', execTime, ...
-        'numPieces', numPieces, ...
-        'distMean', distMean, ...
-        'distMeanHauss', distMeanHauss, ...
-        'effortHeadTranslate', effortHeadTranslate, ...
-        'effortHeadRotate', effortHeadRotate, ...
-        'effortPenTranslate', effortPenTranslate, ...
-        'effortPenRotate', effortPenRotate, ...
-        'shapeId', shapeId, ...
-        'strokeId', strokeId);
+        'kmean', kmean,...                              % Euclidean curvature
+        'gkmean', gkmean, ...                           % geodesic curvature
+        'gfair', gfair, ...                             % geodesic fairness
+        'numKP', numKP, ...                             % number of keypoints
+        'execTime', execTime, ...                       % execution time
+        'numPieces', numPieces, ...                     % no. of pieces
+        'distMeanEP', distMeanEP, ...                   % equi-parameter distance
+        'distMeanSym', distMeanSym, ...                 % symmetric distance
+        'effortHeadTranslate', effortHeadTranslate, ... % head translation
+        'effortHeadRotate', effortHeadRotate, ...       % head rotation
+        'effortPenTranslate', effortPenTranslate, ...   % pen/controller translation
+        'effortPenRotate', effortPenRotate, ...         % pen/controller rotation
+        'shapeID', shapeID, ...                         % shape (model) ID
+        'curveID', curveID);                            % target curve ID
 end

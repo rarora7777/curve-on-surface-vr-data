@@ -1,4 +1,8 @@
-function quality = computeDataQualityMeasures(V, F, data, dataGT, seq)
+function quality = computeDataQualityMeasures(V, F, data, dataGT, sequence)
+    % Compute data quality measures to remove meaningless user strokes.
+    % This function's API works exactly like analyzeParticipant(). Please
+    % see the documentation for that function.
+    
     numMethod = size(data, 1);
     numShape = size(data, 2);
     numStroke = numel(data{1, 1});
@@ -10,13 +14,11 @@ function quality = computeDataQualityMeasures(V, F, data, dataGT, seq)
     
     % stroke too short: len < target_length / 2
     short = false(numShape*(numStroke+2), numMethod);
-    % tangent noise: avg. dot product b/w consecute tangents in 3D is < 0.9
-    tangentNoise = short;
     % stroke is likely inverted: list of indices of stroke points closest
     % to the ordered sequence of has over n*(n-1)/2 inversions
     inverted = short;
     % 3D tracking shows jumps: dist b/w ANY pair of consecutive pts > 5cm
-    jumpy = short;
+    noisy = short;
     
     
     for s=1:numShape
@@ -29,9 +31,9 @@ function quality = computeDataQualityMeasures(V, F, data, dataGT, seq)
             if str <= numStroke
                 strG = str;
             elseif str == numStroke+1
-                strG = seq.StrokeSequence(1+numStroke/2);
+                strG = sequence.StrokeSequence(1+numStroke/2);
             else
-                strG = seq.StrokeSequence(2+numStroke);
+                strG = sequence.StrokeSequence(2+numStroke);
             end
 
             ptsG = getPoints(V{s}, F{s}, dataGT(s).SS(strG));
@@ -57,12 +59,9 @@ function quality = computeDataQualityMeasures(V, F, data, dataGT, seq)
                 PP = toMat(vertcat(DF.PP)) * scale;
                 edge = diff(PP, [], 1);
                 eLen3d = vecnorm(edge, 2, 2);
-                T = edge ./ eLen3d;
                 
-                jumpy(idx, m) = any(eLen3d > 0.05);
+                noisy(idx, m) = any(eLen3d > 0.05);
                 
-                tangentNoise(idx, m) = ...
-                    mean(dot(T(1:end-1, :), T(2:end, :), 2)) < 0.9;
                 
                 pts = getPoints(V{s}, F{s}, d);
                 eLen = vecnorm(diff(pts, [], 1), 2, 2);
@@ -82,15 +81,19 @@ function quality = computeDataQualityMeasures(V, F, data, dataGT, seq)
     end
     
     
-    % badStroke = short | tangentNoise | inverted | jumpy;
-	badStroke = short | inverted | jumpy;
+    % A stroke is bad (to be ignored) if either of the three quality
+    % measures is bad.
+    badStroke = short | inverted | noisy;
+    
+    % A stroke pair is considered bad if either of the two strokes is bad,
+    % so that this pair is not taken into account when comparing mimicry
+    % against spraycan.
     badPair = badStroke(:, 1) | badStroke(:, 2);
     
     quality = struct(...
         'short', short, ...
-        'tangentNoise', tangentNoise, ...
         'inverted', inverted, ...
-        'jumpy', jumpy, ....
+        'noisy', noisy, ....
         'badStroke', badStroke, ...
-        'badPair', badPair);
+        'badPair', badPair);    % badPair is 72*1, unlike the rest which are 72*2
 end

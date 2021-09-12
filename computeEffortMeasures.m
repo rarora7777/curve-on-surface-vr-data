@@ -1,5 +1,11 @@
 function [ht, hr, pt, pr] = computeEffortMeasures(data)
     
+    % Compute effort measures for a single user-drawn stroke.
+    % The time taken measure is simpler to compute and is calculated
+    % directly in analyzeParticipant().
+    % Output variables are head translation and rotation, and pen
+    % translation and rotation, respectively.
+    
     if ~isfield(data(1), 'ModelMatrix')
         warning('ModelMatrix not found. Stroke may be empty!');
         ht = 0;

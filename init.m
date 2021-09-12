@@ -22,12 +22,26 @@ for s=1:numShape
 [V{s}, F{s}] = readOBJ("shapes/" + modelNames(s) + ".obj");
 end
 
+% Load ground truth data (target curves)
+% dataGT : 6*1 struct array, one struct per model
+% each struct has a single field 'SS'
+% SS : 10*1 struct array, one struct per target curve
+% Each struct has the follwing fields:
+% FI (face index) : m*1 double. FI(i) gives the index of the triangle
+% (face) in the model mesh that contains the ith target point.
+% B (barycentric coordinate) : m*3 double. B(i) gives the barycentric
+% coordiante of the ith point on FI(i).
+% KP (keypoint indices) : k*1 integer, each an index into [1...m]
+% representing which points are keypoints.
+% seed : integer, used when sampling curves (not needed for analysis)
+% nc : integer, used when sampling curves (not needed for analysis)
+% dist : double, used when sampling curves (not needed for analysis)
+% angle : integer, used when sampling curves (not needed for analysis)
+dataGT = jsondecode(fileread('./input/study_geometric.json')).PSD;
+
 addpath('geodesic_matlab/matlab/')
 addpath('geodesic_matlab/src/')
 addpath('geodesic_matlab/build/Release/')
-% addpath('smooth-closest-point/')
-% addpath('smooth-closest-point/matlab/')
-% addpath('smooth-closest-point/decimator/')
 
 % Some useful conversion functions
 % Converts an n×1 or 1×n array of structs of the form
