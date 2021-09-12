@@ -1,0 +1,3 @@
+[submodule "geodesic_matlab"]
+	path = geodesic_matlab
+	url = https://github.com/rarora7777/geodesic_matlab.git
