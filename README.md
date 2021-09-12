@@ -1,5 +1,29 @@
 # Study Data: Mid-Air Drawing of Curves on Surfaces in VR
 
+## Installation
+
+If you wish to use the provided MATLAB scripts to read and/or analyze the data, please read on. Otherwise, skip to step 4 to download the data.
+1. Clone the repo, including submodules
+```
+git clone --recurse-submodules https://github.com/raora7777/curve-on-surface-vr-data`
+```
+2. Then, build the `geodesic_matlab` submodule according to instructions: https://github.com/rarora7777/geodesic_matlab.
+3. Download the dependency `gptoolbox` from https://github.com/alecjacobson/gptoolbox/ and add it to the MATLAB path according to the instructions in that repo.
+4. Download the data from ??? to the root folder of this repo (`somewhere/curve-on-surface-vr-data/`) and extract using the command (works on Linux as well as Windows and probably MacOS)
+```
+tar -xf studydata.tar.gz
+```
+5. In MATLAB, change path to the root folder of this repo. Then use `init` to initialize.
+
+## How to use
+The following scripts/functions should get you started. These functions are self-documented.
+
+`init`: This script initializes the global structures you'll need to read and analyze the user data.
+
+`loadParticipantData`: This function loads the data for a single participant.
+
+`analyzeParticipant`: This function computes all the measures reported in the paper for the strokes executed by a single participant.
+
 
 ## Schema for input data
 
