@@ -191,4 +191,8 @@ The schema used for the user data is as follows.
 ## Meshes used in the study
 
 Please cite the original source of each mesh and respect the associated license agreements. Check the acknowledgements secion of the paper for details.
+
+## Third-party code
+
+This repository contains third party code in `interparc.m` and `tubeplot.m`. The licenses for those files are included directly in the files themselves. Both are opn, MIT-like licenses, but please check the actual license text if you're concerned.
  
