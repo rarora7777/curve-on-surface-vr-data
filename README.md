@@ -1,5 +1,7 @@
 # Study Data: Mid-Air Drawing of Curves on Surfaces in VR
 
+This repository provides MATLAB code to load and analyze the data collected in the suer study reported in the TOG 2021 paper "Mid-air Drawing of Curves on 3D Surfaces in Virtual Reality" by Arora and Singh. For further information, go to https://www.dgp.toronto.edu/~arorar/mimicry/.
+
 ## Installation
 
 If you wish to use the provided MATLAB scripts to read and/or analyze the data, please read on. Otherwise, skip to step 4 to download the data.
@@ -9,9 +11,9 @@ git clone --recurse-submodules https://github.com/raora7777/curve-on-surface-vr-
 ```
 2. Then, build the `geodesic_matlab` submodule according to instructions: https://github.com/rarora7777/geodesic_matlab.
 3. Download the dependency `gptoolbox` from https://github.com/alecjacobson/gptoolbox/ and add it to the MATLAB path according to the instructions in that repo.
-4. Download the data from ??? to the root folder of this repo (`somewhere/curve-on-surface-vr-data/`) and extract using the command (works on Linux as well as Windows and probably MacOS)
+4. Download the data [here](https://drive.google.com/file/d/16HLfToeoSTzmcgEjBTdV5HArgyyqNPwl/view?usp=sharing) to the root folder of this repo (`somewhere/curve-on-surface-vr-data/`) and extract using the command (works on Linux and probably MacOS). On Windows, use 7-Zip: https://www.7-zip.org/.
 ```
-tar -xf studydata.tar.gz
+tar -xf studydata.tar.xz
 ```
 5. In MATLAB, change path to the root folder of this repo. Then use `init` to initialize.
 
@@ -94,7 +96,7 @@ For each participant, the order of the two projection techniques and the order o
 
 ## Schema for user data
 
-For each user, 12 `json` files were collected which contain the raw user study data. Each file contains the user-drawn curves for a particular shape and projection technique pair. The files are named as `<methodNumber>_<shapeNumber>.json`. For example, the data for curves drawn over the `bunny` shape using the Mimicry technique will be in the file `1_3.json`.
+For each participant, 12 `json` files were collected which contain the raw user study data. Data for a participant with ID `i` is in the folder `./studydata/pi`. with Each file contains the user-drawn curves for a particular shape and projection technique pair. The files are named as `<methodNumber>_<shapeNumber>.json`. For example, the data for curves drawn over the `bunny` shape using the Mimicry technique will be in the file `1_3.json`.
 
 The schema used for the user data is as follows.
 
@@ -186,4 +188,7 @@ The schema used for the user data is as follows.
 ]
 ```
 
+## Meshes used in the study
+
+Please cite the original source of each mesh and respect the associated license agreements. Check the acknowledgements secion of the paper for details.
  
