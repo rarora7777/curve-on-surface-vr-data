@@ -1,6 +1,6 @@
 # Study Data: Mid-Air Drawing of Curves on Surfaces in VR
 
-This repository provides MATLAB code to load and analyze the data collected in the suer study reported in the TOG 2021 paper "Mid-air Drawing of Curves on 3D Surfaces in Virtual Reality" by Arora and Singh. For further information, go to https://www.dgp.toronto.edu/~arorar/mimicry/.
+This repository provides MATLAB code to load and analyze the user study data collected for and reported in the TOG 2021 paper _Mid-air Drawing of Curves on 3D Surfaces in Virtual Reality_ by Arora and Singh. For further information, go to https://www.dgp.toronto.edu/~arorar/mimicry/.
 
 ## Installation
 
